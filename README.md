@@ -1,1 +1,0 @@
-# trabalho-barber-py
