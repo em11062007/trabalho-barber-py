@@ -6,7 +6,7 @@ arquivo_clientes = 'clientes.json'
 arquivo_agendamentos = 'agendamentos.json'
 arquivo_lucros = 'lucros.json'
 
-# Verificando se os arquivos existem, senão cria vazios
+# Verificando se os arquivos existem, senão cria vazios+.
 def inicializar_arquivos():
     if not os.path.exists(arquivo_clientes):
         with open(arquivo_clientes, 'w') as file:
@@ -200,12 +200,14 @@ def agendar_horario():
     print(f"Valor Total: R$ {valor:.2f}")
 
 # Função para selecionar o serviço e retornar o valor e a descrição do serviço
+class Barbearia:
 def selecionar_servico():
+    self.precos ={
     print("\nEscolha o serviço:")
     print("1 - Corte (R$ 30,00)")
     print("2 - Barba (R$ 20,00)")
     print("3 - Corte + Barba (R$ 45,00)")
-    
+    }
     opcao = int(input("Selecione o número do serviço: "))
     
     if opcao == 1:
