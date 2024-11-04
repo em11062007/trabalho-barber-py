@@ -5,8 +5,9 @@ import os
 arquivo_clientes = 'clientes.json'
 arquivo_agendamentos = 'agendamentos.json'
 arquivo_lucros = 'lucros.json'
+arquivo_barbeiros = 'barbeiros.json'  # Arquivo para armazenar barbeiros
 
-# Verificando se os arquivos existem, senão cria vazios+.
+# Verificando se os arquivos existem, senão cria vazios
 def inicializar_arquivos():
     if not os.path.exists(arquivo_clientes):
         with open(arquivo_clientes, 'w') as file:
@@ -18,6 +19,10 @@ def inicializar_arquivos():
     
     if not os.path.exists(arquivo_lucros):
         with open(arquivo_lucros, 'w') as file:
+            json.dump([], file)
+
+    if not os.path.exists(arquivo_barbeiros):
+        with open(arquivo_barbeiros, 'w') as file:
             json.dump([], file)
 
 # Função para salvar dados no arquivo JSON
@@ -32,12 +37,10 @@ def carregar_dados(arquivo):
 
 # Função para criar o HTML formatado com CSS
 def gerar_html():
-    # Carregar os dados dos arquivos JSON
     clientes = carregar_dados(arquivo_clientes)
     agendamentos = carregar_dados(arquivo_agendamentos)
     lucros = carregar_dados(arquivo_lucros)
 
-    # Criar o conteúdo HTML
     html_content = """
     <!DOCTYPE html>
     <html lang="pt-BR">
@@ -97,7 +100,6 @@ def gerar_html():
                 </tr>
     """
     
-    # Adicionar clientes no HTML
     for cliente in clientes:
         html_content += f"""
             <tr>
@@ -107,7 +109,6 @@ def gerar_html():
             </tr>
         """
     
-    # Continuar com agendamentos
     html_content += """
             </table>
             <h2>Agendamentos</h2>
@@ -120,7 +121,6 @@ def gerar_html():
                 </tr>
     """
     
-    # Adicionar agendamentos no HTML
     for agendamento in agendamentos:
         html_content += f"""
             <tr>
@@ -131,7 +131,6 @@ def gerar_html():
             </tr>
         """
     
-    # Continuar com lucros
     html_content += """
             </table>
             <h2>Lucros do Dia</h2>
@@ -142,7 +141,6 @@ def gerar_html():
                 </tr>
     """
     
-    # Adicionar lucros no HTML
     for idx, lucro in enumerate(lucros, start=1):
         html_content += f"""
             <tr>
@@ -151,7 +149,6 @@ def gerar_html():
             </tr>
         """
     
-    # Finalizar o HTML
     html_content += """
             </table>
         </div>
@@ -159,11 +156,106 @@ def gerar_html():
     </html>
     """
     
-    # Salvar o conteúdo HTML em um arquivo
     with open("dados.html", "w", encoding="utf-8") as file:
         file.write(html_content)
 
     print("Arquivo HTML gerado com sucesso: dados.html")
+
+# Função para cadastrar cliente
+def cadastrar_cliente():
+    print("\nFaça seu cadastro aqui abaixo:")
+    sexo = input("Insira seu sexo: ")
+    idade = int(input("Coloque sua idade: "))
+    nome = input("Coloque seu nome: ")
+    senha = input("Crie uma senha: ")
+
+    clientes = carregar_dados(arquivo_clientes)
+
+    for cliente in clientes:
+        if cliente['nome'] == nome:
+            print(f"{nome} já está cadastrado!")
+            return
+
+    novo_cliente = {
+        'nome': nome,
+        'idade': idade,
+        'sexo': sexo,
+        'senha': senha
+    }
+    clientes.append(novo_cliente)
+    salvar_dados(arquivo_clientes, clientes)
+
+    print("\nCadastro realizado com sucesso!")
+    print(f"Nome: {nome}")
+    print(f"Idade: {idade}")
+    print(f"Sexo: {sexo}")
+
+# Função para cadastrar barbeiro
+def cadastrar_barbeiro():
+    print("\nFaça seu cadastro de barbeiro aqui abaixo:")
+    nome = input("Coloque seu nome: ")
+    idade = int(input("Coloque sua idade: "))
+    sexo = input("Insira seu sexo: ")
+    senha = input("Crie uma senha: ")
+
+    barbeiros = carregar_dados(arquivo_barbeiros)
+
+    for barbeiro in barbeiros:
+        if barbeiro['nome'] == nome:
+            print(f"{nome} já está cadastrado como barbeiro!")
+            return
+
+    novo_barbeiro = {
+        'nome': nome,
+        'idade': idade,
+        'sexo': sexo,
+        'senha': senha
+    }
+    barbeiros.append(novo_barbeiro)
+    salvar_dados(arquivo_barbeiros, barbeiros)
+
+    print("\nCadastro de barbeiro realizado com sucesso!")
+
+# Função para verificar a senha do barbeiro
+def verificar_senha_barbeiro():
+    nome = input("Insira seu nome: ")
+    senha = input("Insira sua senha: ")
+
+    barbeiros = carregar_dados(arquivo_barbeiros)
+
+    for barbeiro in barbeiros:
+        if barbeiro['nome'] == nome and barbeiro['senha'] == senha:
+            return True
+    print("Nome ou senha incorretos.")
+    return False
+
+# Função para calcular o lucro do dia
+def calcular_lucro():
+    if not verificar_senha_barbeiro():
+        return
+
+    print("\nFaça seu cálculo do dia logo abaixo:")
+    lucro_total = 0
+    opcoes_corte = {
+        1: "Corte",
+        2: "Barba",
+        3: "Corte + Barba"
+    }
+
+    lucros = carregar_dados(arquivo_lucros)
+    
+    for i in range(1, 4):
+        print(f"\nOpção {i}: {opcoes_corte[i]}")
+        v1 = float(input(f"Coloque o valor do {opcoes_corte[i]}: R$ "))
+        v2 = int(input(f"Coloque quantas pessoas utilizaram o {opcoes_corte[i]}: "))
+        lucro_total += v1 * v2
+
+    lucro_dia = {'lucro_dia': lucro_total}
+    lucros.append(lucro_dia)
+    salvar_dados(arquivo_lucros, lucros)
+
+    print("\nResumo do Lucro:")
+    print(f"Lucro Total do Dia: R$ {lucro_total:.2f}")
 
 # Função para agendar horário
 def agendar_horario():
@@ -171,10 +263,8 @@ def agendar_horario():
     horario = input("Selecione seu horário no horário de Brasília: ")
     nome = input("Coloque seu nome: ")
     
-    # Carregando agendamentos existentes
     agendamentos = carregar_dados(arquivo_agendamentos)
 
-    # Verifica se o usuário já tem horário agendado
     for agendamento in agendamentos:
         if agendamento['nome'] == nome:
             print(f"{nome} já tem um horário agendado para {agendamento['horario']}!")
@@ -182,7 +272,6 @@ def agendar_horario():
     
     valor, servico = selecionar_servico()
     
-    # Adicionando novo agendamento
     novo_agendamento = {
         'nome': nome,
         'horario': horario,
@@ -192,22 +281,19 @@ def agendar_horario():
     agendamentos.append(novo_agendamento)
     salvar_dados(arquivo_agendamentos, agendamentos)
 
-    # Exibindo o resumo do agendamento
     print("\nResumo do Agendamento:")
     print(f"Cliente: {nome}")
     print(f"Horário: {horario}")
     print(f"Serviço: {servico}")
     print(f"Valor Total: R$ {valor:.2f}")
 
-# Função para selecionar o serviço e retornar o valor e a descrição do serviço
-class Barbearia:
+# Função para selecionar o serviço
 def selecionar_servico():
-    self.precos ={
     print("\nEscolha o serviço:")
     print("1 - Corte (R$ 30,00)")
     print("2 - Barba (R$ 20,00)")
     print("3 - Corte + Barba (R$ 45,00)")
-    }
+    
     opcao = int(input("Selecione o número do serviço: "))
     
     if opcao == 1:
@@ -220,87 +306,30 @@ def selecionar_servico():
         print("Opção inválida, selecione novamente.")
         return selecionar_servico()
 
-# Função para cadastro de cliente
-def cadastrar_cliente():
-    print("\nFaça seu cadastro aqui abaixo:")
-    sexo = input("Insira seu sexo: ")
-    idade = int(input("Coloque sua idade: "))
-    nome = input("Coloque seu nome: ")
-
-    # Carregando clientes existentes
-    clientes = carregar_dados(arquivo_clientes)
-
-    # Verifica se o cliente já está cadastrado
-    for cliente in clientes:
-        if cliente['nome'] == nome:
-            print(f"{nome} já está cadastrado!")
-            return
-
-    # Adicionando novo cliente
-    novo_cliente = {
-        'nome': nome,
-        'idade': idade,
-        'sexo': sexo
-    }
-    clientes.append(novo_cliente)
-    salvar_dados(arquivo_clientes, clientes)
-
-    # Exibindo o resumo do cadastro
-    print("\nCadastro realizado com sucesso!")
-    print(f"Nome: {nome}")
-    print(f"Idade: {idade}")
-    print(f"Sexo: {sexo}")
-
-# Função para calcular o lucro do dia
-def calcular_lucro():
-    print("\nFaça seu cálculo do dia logo abaixo:")
-    lucro_total = 0
-    opcoes_corte = {
-        1: "Corte",
-        2: "Barba",
-        3: "Corte + Barba"
-    }
-
-    # Carregando lucros anteriores
-    lucros = carregar_dados(arquivo_lucros)
-    
-    # Loop para selecionar e calcular o lucro para cada tipo de corte
-    for i in range(1, 4):
-        print(f"\nOpção {i} - {opcoes_corte[i]}")
-        v1 = int(input(f"Coloque o valor do {opcoes_corte[i]}: R$ "))
-        v2 = int(input(f"Coloque quantas pessoas utilizaram o {opcoes_corte[i]}: "))
-        lucro_total += v1 * v2
-
-    # Adicionando lucro do dia
-    lucro_dia = {'lucro_dia': lucro_total}
-    lucros.append(lucro_dia)
-    salvar_dados(arquivo_lucros, lucros)
-
-    # Exibindo o resumo do lucro
-    print("\nResumo do Lucro:")
-    print(f"Lucro Total do Dia: R$ {lucro_total:.2f}")
-
 # Função do menu principal
 def menu():
     while True:
         print("\n--- Menu Principal ---")
         print("1 - Cadastrar Cliente")
-        print("2 - Agendar Horário")
-        print("3 - Calcular Lucro")
-        print("4 - Gerar e Visualizar HTML")
-        print("5 - Sair")
+        print("2 - Cadastrar Barbeiro")
+        print("3 - Agendar Horário")
+        print("4 - Calcular Lucro")
+        print("5 - Gerar e Visualizar HTML")
+        print("6 - Sair")
 
         opcao = input("Escolha uma opção: ")
 
         if opcao == '1':
             cadastrar_cliente()
         elif opcao == '2':
-            agendar_horario()
+            cadastrar_barbeiro()
         elif opcao == '3':
-            calcular_lucro()
+            agendar_horario()
         elif opcao == '4':
-            gerar_html()
+            calcular_lucro()
         elif opcao == '5':
+            gerar_html()
+        elif opcao == '6':
             print("Saindo do programa...")
             break
         else:
