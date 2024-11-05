@@ -35,7 +35,7 @@ def carregar_dados(arquivo):
     with open(arquivo, 'r') as file:
         return json.load(file)
 
-# Função para criar o HTML formatado com CSS
+# Função para gerar o HTML formatado com CSS
 def gerar_html():
     clientes = carregar_dados(arquivo_clientes)
     agendamentos = carregar_dados(arquivo_agendamentos)
@@ -247,7 +247,7 @@ def calcular_lucro():
     for i in range(1, 4):
         print(f"\nOpção {i}: {opcoes_corte[i]}")
         v1 = float(input(f"Coloque o valor do {opcoes_corte[i]}: R$ "))
-        v2 = int(input(f"Coloque quantas pessoas utilizaram o {opcoes_corte[i]}: "))
+        v2 = int(input(f"Coloque quantas pessoas realizaram o {opcoes_corte[i]}: "))
         lucro_total += v1 * v2
 
     lucro_dia = {'lucro_dia': lucro_total}
